@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+    html { height: 100% }
+    body { height: 100%; margin: 0; padding: 0 }
+    #map_canvas { height: 100% }
+</style>
+</head>
+<body>
+    <div id="map_canvas" style="width:100%; height:100%"></div>
+
+
+
+<script type="text/javascript">
+
+function initialize() {
+    var mapOptions = {
+        zoom: 13,
+        center: new google.maps.LatLng(53.551731, 9.994018),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+    var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/' + window.location.hash.substr(1), true);
+
+    var waypoints = [];
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            var portalData = JSON.parse(this.responseText);
+            var totalTime = 0;
+            waypoints = portalData.map(function (portal) {
+                totalTime += portal.distance <= 30 ? 4000 : portal.distance * 133;
+                if (portal.portal !== null) {
+                    return new google.maps.LatLng(portal.portal[2].locationE6.latE6 / 1E6, portal.portal[2].locationE6.lngE6 / 1E6);
+                }
+                return null;
+            }).filter(function (item) { return item !== null; });
+
+            console.log(totalTime / 1000);
+
+            waypoints.forEach(function (point) {
+                var marker = new google.maps.Marker({ position: point, map: map, icon: '/marker.png' });
+            });
+            animatePath(0, 1, waypoints, map);
+        }
+    };
+
+    xhr.send();
+}
+
+
+function animatePath(from, to, points, map) {
+    if (to > points.length) {
+        return;
+    }
+    var portals = new google.maps.Polyline({
+        path: [points[from], points[to]],
+        strokeColor: "#FF0000",
+        strokeOpacity: 1.0,
+        strokeWeight: 2,
+        map: map
+    });
+    window.setTimeout(function () {
+        animatePath(++from, ++to, points, map);
+    }, 50);
+}
+
+
+
+function loadScript() {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "http://maps.googleapis.com/maps/api/js?key=AIzaSyCFZaZbmxGK6pP4xx0SXE55STlRY4sdseQ&sensor=true&callback=initialize";
+    document.body.appendChild(script);
+}
+
+window.onload = loadScript;
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+.credentials
+credentials.json
+places.json
+.cache/
+*~
+.*~

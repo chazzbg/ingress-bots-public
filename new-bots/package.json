@@ -1,0 +1,10 @@
+{
+    "name": "ingress-bots",
+    "description": "A variety of ingress bots to automate things.",
+    "version": "0.0.1",
+    "dependencies": {
+        "ingress-client": "git://git@github.com:nerdlabs/ingress-client-public.git",
+        "colors": "0.6.x"
+    },
+    "license": "WTFPL"
+}
